@@ -70,7 +70,8 @@ class MetadataOverlayWidget extends StatelessWidget {
             SizedBox(height: 1.h),
             _buildMetadataRow(
               'Timestamp',
-              photoData['timestamp'] ?? DateTime.now().toString().split('.')[0],
+              photoData['timestamp'].toString() ??
+                  DateTime.now().toString().split('.')[0],
               CustomIconWidget(
                 iconName: 'access_time',
                 color: AppTheme.lightTheme.colorScheme.primary,

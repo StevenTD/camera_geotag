@@ -69,6 +69,7 @@ class _PhotoZoomWidgetState extends State<PhotoZoomWidget>
 
   @override
   Widget build(BuildContext context) {
+    print('Img: ' + widget.imagePath);
     return GestureDetector(
       onDoubleTap: _onDoubleTap,
       child: InteractiveViewer(

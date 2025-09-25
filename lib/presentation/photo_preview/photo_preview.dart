@@ -1,8 +1,12 @@
 import 'dart:io';
+import 'dart:typed_data';
+import 'dart:ui' as ui;
 
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:sizer/sizer.dart';
@@ -54,6 +58,11 @@ class _PhotoPreviewState extends State<PhotoPreview>
   void initState() {
     super.initState();
     _initializeAnimations();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
     _loadPhotoData();
   }
 
@@ -69,7 +78,6 @@ class _PhotoPreviewState extends State<PhotoPreview>
   }
 
   void _loadPhotoData() {
-    // Simulate loading photo data from arguments or storage
     final args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
     if (args != null) {
@@ -102,10 +110,7 @@ class _PhotoPreviewState extends State<PhotoPreview>
         return;
       }
 
-      // Simulate photo processing and saving
-      await Future.delayed(const Duration(milliseconds: 1500));
-
-      // Save photo with embedded metadata
+      // Process and save photo with embedded metadata
       await _savePhotoWithMetadata();
 
       // Show success animation
@@ -118,6 +123,7 @@ class _PhotoPreviewState extends State<PhotoPreview>
       Navigator.pushReplacementNamed(context, '/camera-viewfinder');
     } catch (e) {
       _showErrorMessage('Failed to save photo. Please try again.');
+      print('Save error: $e'); // Debug logging
     } finally {
       if (mounted) {
         setState(() {
@@ -130,32 +136,132 @@ class _PhotoPreviewState extends State<PhotoPreview>
 
   Future<bool> _requestStoragePermission() async {
     if (Platform.isAndroid) {
-      final status = await Permission.storage.request();
-      return status.isGranted;
+      final status =
+          await Permission.manageExternalStorage.request(); // For Android 11+
+      if (status.isGranted) return true;
+
+      // Fallback for older Android versions
+      final legacyStatus = await Permission.storage.request();
+      return legacyStatus.isGranted;
     }
     return true; // iOS handles automatically
   }
 
+  Future<img.Image> _addMetadataOverlay(img.Image originalImage) async {
+    // Create a copy of the original image
+    final processedImage = img.Image.from(originalImage);
+
+    // Calculate overlay dimensions and position
+    const overlayPadding = 20;
+    const lineHeight = 25;
+    const fontSize = 16;
+
+    // Prepare metadata text
+    final metadataLines = [
+      '📍 ${(_photoData['latitude'] as double).toStringAsFixed(6)}, ${(_photoData['longitude'] as double).toStringAsFixed(6)}',
+      '⛰️ ${(_photoData['elevation'] as double).toStringAsFixed(1)}m ±${(_photoData['accuracy'] as double).toStringAsFixed(1)}m',
+      '🕒 ${_photoData['timestamp']}',
+      '🌡️ ${_photoData['temperature']} ${_photoData['weather']}',
+      '🧭 ${_photoData['compass_bearing']}',
+      '📱 ${_photoData['device']} - ${_photoData['app_version']}',
+    ];
+
+    // Calculate overlay background size
+    final overlayWidth = 350;
+    final overlayHeight =
+        (metadataLines.length * lineHeight) + (overlayPadding * 2);
+
+    // Draw semi-transparent background
+    img.fillRect(
+      processedImage,
+      x1: overlayPadding,
+      y1: overlayPadding,
+      x2: overlayPadding + overlayWidth,
+      y2: overlayPadding + overlayHeight,
+      color: img.ColorRgba8(0, 0, 0, 180), // Semi-transparent black
+    );
+
+    // Draw border
+    img.drawRect(
+      processedImage,
+      x1: overlayPadding,
+      y1: overlayPadding,
+      x2: overlayPadding + overlayWidth,
+      y2: overlayPadding + overlayHeight,
+      color: img.ColorRgba8(255, 255, 255, 200), // White border
+    );
+
+    // Draw metadata text
+    for (int i = 0; i < metadataLines.length; i++) {
+      final y = overlayPadding + 15 + (i * lineHeight);
+
+      // Draw text with white color
+      img.drawString(
+        processedImage,
+        metadataLines[i],
+        font: img.arial14, // Using built-in font
+        x: overlayPadding + 10,
+        y: y,
+        color: img.ColorRgba8(255, 255, 255, 255), // White text
+      );
+    }
+
+    return processedImage;
+  }
+
   Future<void> _savePhotoWithMetadata() async {
     try {
-      final directory = await getApplicationDocumentsDirectory();
-      final photoDir = Directory('${directory.path}/GeoStamp');
-
-      if (!await photoDir.exists()) {
-        await photoDir.create(recursive: true);
+      // Load the original image
+      final originalPath = _photoData['image_path'] as String?;
+      if (originalPath == null || !File(originalPath).existsSync()) {
+        throw Exception('Original image not found');
       }
 
-      // Simulate saving photo with embedded metadata
+      // Read and decode the original image
+      final originalBytes = await File(originalPath).readAsBytes();
+      final originalImage = img.decodeImage(originalBytes);
+
+      if (originalImage == null) {
+        throw Exception('Failed to decode image');
+      }
+
+      // Add metadata overlay
+      final processedImage = await _addMetadataOverlay(originalImage);
+
+      // Encode the processed image
+      final processedBytes = img.encodeJpg(processedImage, quality: 95);
+
+      // Create directories
+      final appDirectory = await getApplicationDocumentsDirectory();
+      final appPhotoDir = Directory('${appDirectory.path}/GeoStamp');
+      if (!await appPhotoDir.exists()) {
+        await appPhotoDir.create(recursive: true);
+      }
+
+      final galleryDir = Directory('/storage/emulated/0/DCIM/GeoStamp');
+      if (!await galleryDir.exists()) {
+        await galleryDir.create(recursive: true);
+      }
+
+      // Generate filename
       final fileName = 'GeoStamp_${DateTime.now().millisecondsSinceEpoch}.jpg';
-      final filePath = '${photoDir.path}/$fileName';
+      final appFilePath = '${appPhotoDir.path}/$fileName';
+      final galleryFilePath = '${galleryDir.path}/$fileName';
 
-      // In a real implementation, this would:
-      // 1. Load the original image
-      // 2. Draw metadata overlay using Canvas
-      // 3. Embed GPS data in EXIF
-      // 4. Save the processed image
+      // Save processed image with metadata overlay
+      await File(appFilePath).writeAsBytes(processedBytes);
+      await File(galleryFilePath).writeAsBytes(processedBytes);
 
-      _photoData['saved_path'] = filePath;
+      // Trigger media scan so gallery sees the image
+      try {
+        const channel =
+            MethodChannel('com.example.camera_geotag/media_scanner');
+        await channel.invokeMethod('scanFile', {'path': galleryFilePath});
+      } catch (e) {
+        // If platform channel not implemented, ignore
+      }
+
+      _photoData['saved_path'] = galleryFilePath;
       _photoData['saved_at'] = DateTime.now().toIso8601String();
     } catch (e) {
       throw Exception('Failed to save photo: $e');

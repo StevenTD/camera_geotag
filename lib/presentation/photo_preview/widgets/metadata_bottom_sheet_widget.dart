@@ -90,7 +90,7 @@ class MetadataBottomSheetWidget extends StatelessWidget {
                   _buildDetailRow(
                     context,
                     'Timestamp',
-                    photoData['timestamp'] ??
+                    photoData['timestamp'].toString() ??
                         DateTime.now().toString().split('.')[0],
                     'access_time',
                     copyable: true,

@@ -3,5 +3,32 @@
          the Flutter tool needs it to communicate with the running application
          to allow setting breakpoints, to provide hot reload, etc.
     -->
+
+        <!-- Required for approximate location access -->
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- Required for precise location access -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <!-- Required only when requesting background location access on Android 10 (API level 29) and higher. -->
+    <uses-permission android:name="android.permission.ACCESS_BACKGROUND_LOCATION" />
+
+
+<!-- Camera permissions -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+
+    <!-- Storage permissions for saving photos -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
+
+        <!--
+      Granular media permissions for Android 13 and newer.
+      See https://developer.android.com/about/versions/13/behavior-changes-13#granular-media-permissions
+      for more information.
+    -->
+    <uses-permission android:name="android.permission.READ_MEDIA_IMAGES" />
+    <uses-permission android:name="android.permission.READ_MEDIA_VIDEO" />
+    <uses-permission android:name="android.permission.READ_MEDIA_AUDIO" />
+
     <uses-permission android:name="android.permission.INTERNET"/>
 </manifest>

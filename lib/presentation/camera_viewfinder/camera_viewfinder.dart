@@ -397,7 +397,14 @@ class _CameraViewfinderState extends State<CameraViewfinder>
       });
 
       // Navigate to photo preview
-      Navigator.pushNamed(context, '/photo-preview', arguments: newPhoto);
+      Navigator.pushNamed(
+        context,
+        '/photo-preview',
+        arguments: {
+          'image_path': photo.path, // Replace with your captured image path
+          // Add other metadata as needed
+        },
+      );
     } catch (e) {
       debugPrint('Photo capture error: $e');
       setState(() {
@@ -462,98 +469,10 @@ class _CameraViewfinderState extends State<CameraViewfinder>
       backgroundColor: Colors.green,
       body: Stack(
         children: [
-          //ElevatedButton(onPressed: () {}, child: Text('data'))
-          // Camera Preview with better error handling
-
-          if (_isCameraInitialized &&
-              _cameraController != null &&
-              _cameraController!.value.isInitialized &&
-              !_cameraController!.value.isRecordingVideo &&
-              !_cameraController!.value.isStreamingImages)
-            Expanded(
-              child: GestureDetector(
-                onTapDown: _onTapToFocus,
-                onLongPress: _toggleMetadataVisibility,
-                child: CameraPreview(_cameraController!),
-              ),
-            )
-          else
-            Positioned.fill(
-              child: Container(
-                color: Colors.green,
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (_cameras.isEmpty)
-                        Column(
-                          children: [
-                            Icon(
-                              Icons.camera_alt_outlined,
-                              size: 24.w,
-                              color: Colors.grey[400],
-                            ),
-                            SizedBox(height: 3.h),
-                            Text(
-                              'Camera Not Available',
-                              style: AppTheme.lightTheme.textTheme.titleLarge
-                                  ?.copyWith(color: Colors.white),
-                            ),
-                            SizedBox(height: 2.h),
-                            Text(
-                              'Please check camera permissions\nand try again',
-                              style: AppTheme.lightTheme.textTheme.bodyMedium
-                                  ?.copyWith(color: Colors.grey[400]),
-                              textAlign: TextAlign.center,
-                            ),
-                            SizedBox(height: 4.h),
-                            ElevatedButton(
-                              onPressed: _retryCamera,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor:
-                                    AppTheme.lightTheme.colorScheme.primary,
-                                padding: EdgeInsets.symmetric(
-                                  horizontal: 8.w,
-                                  vertical: 2.h,
-                                ),
-                              ),
-                              child: Text(
-                                'Retry Camera',
-                                style: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16.sp,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                              ),
-                            ),
-                          ],
-                        )
-                      else
-                        Column(
-                          children: [
-                            SizedBox(
-                              width: 12.w,
-                              height: 12.w,
-                              child: CircularProgressIndicator(
-                                strokeWidth: 3,
-                                valueColor: AlwaysStoppedAnimation<Color>(
-                                  AppTheme.lightTheme.colorScheme.primary,
-                                ),
-                              ),
-                            ),
-                            SizedBox(height: 3.h),
-                            Text(
-                              'Initializing Camera...',
-                              style: AppTheme.lightTheme.textTheme.bodyLarge
-                                  ?.copyWith(color: Colors.white),
-                            ),
-                          ],
-                        ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+          Container(
+            // No width/height specified, so it fills the Stack
+            child: CameraPreview(_cameraController!),
+          ),
 
           // Logo Overlay
           LogoOverlayWidget(
