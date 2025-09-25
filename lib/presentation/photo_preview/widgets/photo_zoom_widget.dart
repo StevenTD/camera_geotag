@@ -27,6 +27,7 @@ class _PhotoZoomWidgetState extends State<PhotoZoomWidget>
   late AnimationController _animationController;
   Animation<Matrix4>? _animation;
 
+  // Called when the widget is first created
   @override
   void initState() {
     super.initState();
@@ -37,6 +38,7 @@ class _PhotoZoomWidgetState extends State<PhotoZoomWidget>
     );
   }
 
+  // Called when the widget is being removed
   @override
   void dispose() {
     _transformationController.dispose();
@@ -44,6 +46,7 @@ class _PhotoZoomWidgetState extends State<PhotoZoomWidget>
     super.dispose();
   }
 
+  // Handles double-tap to zoom in/out
   void _onDoubleTap() {
     Matrix4 endMatrix;
     if (_transformationController.value != Matrix4.identity()) {
@@ -67,6 +70,7 @@ class _PhotoZoomWidgetState extends State<PhotoZoomWidget>
     widget.onDoubleTap?.call();
   }
 
+  // Builds the zoomable photo widget
   @override
   Widget build(BuildContext context) {
     print('Img: ' + widget.imagePath);

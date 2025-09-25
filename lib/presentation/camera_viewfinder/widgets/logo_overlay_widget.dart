@@ -1,29 +1,22 @@
 import 'package:flutter/material.dart';
 import 'package:sizer/sizer.dart';
 
-import '../../../core/app_export.dart';
-import '../../../widgets/custom_image_widget.dart';
-
 class LogoOverlayWidget extends StatelessWidget {
-  final String? logoPath;
+  final String logoAssetPath;
   final double opacity;
   final double size;
   final Alignment position;
-  final bool isVisible;
 
   const LogoOverlayWidget({
     Key? key,
-    this.logoPath,
+    required this.logoAssetPath,
     this.opacity = 0.8,
     this.size = 15.0,
     this.position = Alignment.topRight,
-    this.isVisible = true,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    if (!isVisible || logoPath == null) return const SizedBox.shrink();
-
     return Positioned.fill(
       child: Align(
         alignment: position,
@@ -46,8 +39,8 @@ class LogoOverlayWidget extends StatelessWidget {
                 ],
               ),
               padding: EdgeInsets.all(2.w),
-              child: CustomImageWidget(
-                imageUrl: logoPath!,
+              child: Image.asset(
+                logoAssetPath,
                 width: size.w - 4.w,
                 height: size.w - 4.w,
                 fit: BoxFit.contain,

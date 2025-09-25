@@ -5,6 +5,7 @@ import 'package:sizer/sizer.dart';
 import '../core/app_export.dart';
 import '../widgets/custom_error_widget.dart';
 
+// Main function - starts the app
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 

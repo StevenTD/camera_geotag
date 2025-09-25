@@ -12,6 +12,7 @@ class MetadataBottomSheetWidget extends StatelessWidget {
     required this.photoData,
   }) : super(key: key);
 
+  // Builds the metadata bottom sheet widget
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -130,6 +131,7 @@ class MetadataBottomSheetWidget extends StatelessWidget {
     );
   }
 
+  // Creates a detailed row for metadata display
   Widget _buildDetailRow(
     BuildContext context,
     String title,
@@ -208,6 +210,7 @@ class MetadataBottomSheetWidget extends StatelessWidget {
     );
   }
 
+  // Returns a description based on GPS accuracy
   String _getAccuracyDescription(double? accuracy) {
     if (accuracy == null) return 'Accuracy unknown';
     if (accuracy <= 3) return 'Excellent accuracy';
@@ -217,6 +220,7 @@ class MetadataBottomSheetWidget extends StatelessWidget {
     return 'Very poor accuracy';
   }
 
+  // Copies text to clipboard and shows confirmation
   void _copyToClipboard(BuildContext context, String text) {
     Clipboard.setData(ClipboardData(text: text));
     ScaffoldMessenger.of(context).showSnackBar(
