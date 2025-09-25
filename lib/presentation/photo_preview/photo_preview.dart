@@ -54,18 +54,21 @@ class _PhotoPreviewState extends State<PhotoPreview>
     "compass_bearing": "NE 45°",
   };
 
+  // Called when the widget is first created
   @override
   void initState() {
     super.initState();
     _initializeAnimations();
   }
 
+  // Called when widget dependencies change
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _loadPhotoData();
   }
 
+  // Sets up the fade-in animation for the screen
   void _initializeAnimations() {
     _fadeController = AnimationController(
       duration: const Duration(milliseconds: 300),
@@ -77,6 +80,7 @@ class _PhotoPreviewState extends State<PhotoPreview>
     _fadeController.forward();
   }
 
+  // Loads photo data passed from the previous screen
   void _loadPhotoData() {
     final args =
         ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
@@ -85,17 +89,20 @@ class _PhotoPreviewState extends State<PhotoPreview>
     }
   }
 
+  // Called when the widget is being removed
   @override
   void dispose() {
     _fadeController.dispose();
     super.dispose();
   }
 
+  // Handles the retake button - goes back to camera
   Future<void> _handleRetake() async {
     HapticFeedback.lightImpact();
     Navigator.pushReplacementNamed(context, '/camera-viewfinder');
   }
 
+  // Handles the save button - saves photo with metadata
   Future<void> _handleSave() async {
     if (_isLoading) return;
 
@@ -134,6 +141,7 @@ class _PhotoPreviewState extends State<PhotoPreview>
     }
   }
 
+  // Asks for permission to save photos to storage
   Future<bool> _requestStoragePermission() async {
     if (Platform.isAndroid) {
       final status =
@@ -147,6 +155,7 @@ class _PhotoPreviewState extends State<PhotoPreview>
     return true; // iOS handles automatically
   }
 
+  // Adds GPS metadata text overlay to the photo
   Future<img.Image> _addMetadataOverlay(img.Image originalImage) async {
     // Create a copy of the original image
     final processedImage = img.Image.from(originalImage);
@@ -209,6 +218,7 @@ class _PhotoPreviewState extends State<PhotoPreview>
     return processedImage;
   }
 
+  // Saves the photo with metadata overlay to device storage
   Future<void> _savePhotoWithMetadata() async {
     try {
       // Load the original image
@@ -268,6 +278,7 @@ class _PhotoPreviewState extends State<PhotoPreview>
     }
   }
 
+  // Handles the share button - shares the photo
   Future<void> _handleShare() async {
     HapticFeedback.lightImpact();
 
@@ -290,6 +301,7 @@ class _PhotoPreviewState extends State<PhotoPreview>
     }
   }
 
+  // Shows an error message to the user
   void _showErrorMessage(String message) {
     Fluttertoast.showToast(
       msg: message,
@@ -300,11 +312,13 @@ class _PhotoPreviewState extends State<PhotoPreview>
     );
   }
 
+  // Toggles the metadata overlay on/off
   void _toggleMetadataVisibility() {
     setState(() => _isMetadataVisible = !_isMetadataVisible);
     HapticFeedback.selectionClick();
   }
 
+  // Shows detailed metadata in a bottom sheet
   void _showMetadataBottomSheet() {
     HapticFeedback.lightImpact();
     showModalBottomSheet(
@@ -322,6 +336,7 @@ class _PhotoPreviewState extends State<PhotoPreview>
     );
   }
 
+  // Builds the main UI for the photo preview screen
   @override
   Widget build(BuildContext context) {
     return Scaffold(

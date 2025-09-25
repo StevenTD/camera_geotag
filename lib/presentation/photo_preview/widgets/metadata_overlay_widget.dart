@@ -15,6 +15,7 @@ class MetadataOverlayWidget extends StatelessWidget {
     this.onToggleVisibility,
   }) : super(key: key);
 
+  // Builds the metadata overlay widget
   @override
   Widget build(BuildContext context) {
     if (!isVisible) return const SizedBox.shrink();
@@ -84,6 +85,7 @@ class MetadataOverlayWidget extends StatelessWidget {
     );
   }
 
+  // Creates a row showing metadata label, value, and icon
   Widget _buildMetadataRow(String label, String value, Widget icon) {
     return Row(
       children: [
@@ -117,6 +119,7 @@ class MetadataOverlayWidget extends StatelessWidget {
     );
   }
 
+  // Returns color based on GPS accuracy level
   Color _getAccuracyColor(double? accuracy) {
     if (accuracy == null) return Colors.grey;
     if (accuracy <= 5) return Colors.green;
